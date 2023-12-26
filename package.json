@@ -1,0 +1,26 @@
+{
+  "name": "03-poc-sonarqube",
+  "version": "1.0.0",
+  "description": "extraccion de datos de SonarQube",
+  "main": "index.js",
+  "scripts": {
+    "start": "npm run build && node build/index.js",
+    "start:dev": "npx nodemon",
+    "build": "rimraf ./build && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Manuel Arriola",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jsonexport": "^3.0.5",
+    "@types/node": "^20.10.5",
+    "nodemon": "^3.0.2",
+    "rimraf": "^5.0.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "jsonexport": "^3.2.0"
+  }
+}
