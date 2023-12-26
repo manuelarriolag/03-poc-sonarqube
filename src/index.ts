@@ -8,7 +8,7 @@ import { Component, Measure } from './types';
 (async () => {
 
     try {
-        const url = 'https://sonar-digital.gc.gentera.com.mx';
+        const url:string = process.env.URL as string;
 
         const requestOptions: RequestInit = {
             method: 'GET',
