@@ -11,6 +11,7 @@ export interface Component {
 }
 
 export interface Measure {
+    componentKey: string;
     metric:    string;
     value:     string;
     bestValue: boolean;

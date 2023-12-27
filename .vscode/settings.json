@@ -1,7 +1,9 @@
 {
     "cSpell.words": [
+        "hotspots",
         "jsonexport",
         "ncloc",
-        "qualitygates"
+        "qualitygates",
+        "sqale"
     ]
 }

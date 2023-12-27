@@ -4,11 +4,10 @@ import jsonexport from 'jsonexport';
 import fs from 'fs';
 import { Component, Measure } from './types';
 
-
 (async () => {
 
     try {
-        const url:string = process.env.URL as string;
+        const url: string = process.env.URL as string;
 
         const requestOptions: RequestInit = {
             method: 'GET',
@@ -17,44 +16,43 @@ import { Component, Measure } from './types';
             ]
         };
 
-        const listComponents = await getComponentList(url, requestOptions)
+        fs.mkdirSync(`${__dirname}/out`);
+
+        const listComponents: Component[] = await getComponentList(url, requestOptions)
             .then(comps => {
                 comps = comps.filter(item => item.key.startsWith('gd-'));
-
-                console.log('Components------');
+                //console.log('Components------');
                 jsonexport(comps, (err, csv) => {
                     if (err) return console.error(err);
-                    const filename = 'components.output.csv';
-                    fs.writeFile(filename, csv, function (err) {
-                        if (err) return console.error(err);
-                        console.log(filename + ' saved');
-                    });
+                    const filename = `${__dirname}/out/components.csv`;
+                    // fs.writeFile(filename, csv, function (err) {
+                    //     if (err) return console.error(err);
+                    //     console.log(filename + ' saved');
+                    // });
+                    fs.writeFileSync(filename, csv);                    
+                    console.log(filename + ' saved');
                 });
 
                 return comps;
             });
 
-        const allPromisesForMeasures: Promise<Component>[] = [];
+        const allPromisesForMeasures: Promise<Measure[]>[] = [];
         listComponents.map(comp => {
             const prom = getComponentMeasures(url, requestOptions, comp.key)
-                .then(data => {
-                    jsonexport(data.measures, (err, csv) => {
+                .then(measures => {
+                    jsonexport(measures, (err, csv) => {
                         if (err) return console.error(err);
-                        const filename = `measures.${data.key}.csv`;
-                        fs.writeFile(filename, csv, function (err) {
-                            if (err) return console.error(err);
-                            console.log(filename + ' saved');
-                        });
-        
-                        // appendFileSync ???
+                        const filename = `${__dirname}/out/measures.${comp.key}.csv`;
+                        fs.writeFileSync(filename, csv);                    
+                        console.log(filename + ' saved');
                     });
-                    
-                    return data;
+                    return measures;
                 });
             allPromisesForMeasures.push(prom);
         });
 
-        Promise.all(allPromisesForMeasures);
+        await Promise.all(allPromisesForMeasures);
+        console.log(':::: DONE ::::')
 
     } catch (error) {
         console.log('Errors: ', error);
