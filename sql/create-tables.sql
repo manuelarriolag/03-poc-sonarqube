@@ -24,6 +24,24 @@ create table metrics (
     ps integer
 ); 
 
+drop table if exists components;
+create table components (
+    key VARCHAR(100),
+    name VARCHAR(255),
+    qualifier VARCHAR(10),
+    project VARCHAR(100)
+); 
+
+drop table if exists conditions;
+create table conditions (
+    processDate timestamptz,
+    componentKey VARCHAR(100),
+    status VARCHAR(10),
+    metricKey VARCHAR(100),
+    comparator VARCHAR(10),
+    errorThreshold decimal(10,2),
+    actualValue decimal(10,2)
+); 
 
 drop table if exists measures;
 create table measures (
@@ -32,6 +50,15 @@ create table measures (
     metric VARCHAR(100),
     value VARCHAR(1000),
     bestValue boolean
+); 
+
+drop table if exists statuses;
+create table statuses (
+    processDate timestamptz,
+    componentKey VARCHAR(100),
+    status VARCHAR(10),
+    ignoredConditions boolean,
+    caycStatus VARCHAR(20)
 ); 
 
 

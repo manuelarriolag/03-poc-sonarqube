@@ -21,7 +21,7 @@ import { removeDuplicatedHeaders } from './utils';
 
         // Get Components (Projects)
         console.log(':::: Get Components (Projects) ::::')
-        const filenameForComponents = `${__dirname}/out/components.csv`;
+        const filenameForComponents = `${__dirname}/out/sonarqube.components.csv`;
         const listComponents: Component[] = await getComponentList(url, requestOptions)
             .then(comps => {
                 comps = comps.filter(item => item.key.startsWith('gd-'));
@@ -37,7 +37,7 @@ import { removeDuplicatedHeaders } from './utils';
 
         // Get Measures
         console.log(':::: Get Measures ::::')
-        const filenameForMeasures = `${__dirname}/out/measures.csv`;
+        const filenameForMeasures = `${__dirname}/out/sonarqube.measures.csv`;
         const allPromisesForMeasures: Promise<Measure[]>[] = [];
         listComponents.map(comp => {
             const prom = getComponentMeasures(url, requestOptions, comp.key)
@@ -63,8 +63,8 @@ import { removeDuplicatedHeaders } from './utils';
 
         // Get ProjectStatuses
         console.log(':::: Get Statuses + Conditions ::::')
-        const filenameForStatuses = `${__dirname}/out/statuses.csv`;
-        const filenameForConditions = `${__dirname}/out/conditions.csv`;
+        const filenameForStatuses = `${__dirname}/out/sonarqube.statuses.csv`;
+        const filenameForConditions = `${__dirname}/out/sonarqube.conditions.csv`;
         const allPromisesForProjectStatuses: Promise<ProjectStatus>[] = [];
         listComponents.map(comp => {
             const prom = getProjectStatus(url, requestOptions, comp.key)
