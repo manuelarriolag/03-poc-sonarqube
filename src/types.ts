@@ -54,8 +54,8 @@ export interface ProjectStatusFormatted {
     componentKey:      string;
     status:            string;
     ignoredConditions: boolean;
-    periodMode:        string;
-    periodDate:        string;
+    periodMode?:        string;
+    periodDate?:        string;
     caycStatus:        string;
 }
 

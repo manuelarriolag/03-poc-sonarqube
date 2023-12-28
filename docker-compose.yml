@@ -17,19 +17,12 @@ services:
       POSTGRES_DB: postgres    
     volumes:
       ##- ~/databases/postgresql-data:/var/lib/postgresql/data
+      ##- ~/Databases/postgresql-conf:/bitnami/postgresql/conf
       - ~/Databases/postgresql-data:/bitnami/postgresql
     ports:
       - 5432:5432
     networks:
       - app-tier
-
-  # adminer:
-  #   image: adminer
-  #   restart: always
-  #   ports:
-  #     - 8080:8080
-  #   networks:
-  #     - app-tier
 
   pgadmin4:
     image: dpage/pgadmin4:7
@@ -37,6 +30,8 @@ services:
     environment:
       - PGADMIN_DEFAULT_EMAIL=user@domain.com
       - PGADMIN_DEFAULT_PASSWORD=SuperSecret
+    volumes:
+      - ~/Databases/postgresql-pgadmin:/var/lib/pgadmin
     ports:
       - 8080:80
     networks:

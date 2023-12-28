@@ -3,6 +3,7 @@ import { getComponentList, getComponentMeasures, getProjectStatus } from './requ
 import jsonexport from 'jsonexport';
 import fs from 'fs';
 import { Component, Measure, ProjectStatus, ProjectStatusFormatted } from './types';
+import { removeDuplicatedHeaders } from './utils';
 
 (async () => {
 
@@ -19,26 +20,24 @@ import { Component, Measure, ProjectStatus, ProjectStatusFormatted } from './typ
         fs.mkdirSync(`${__dirname}/out`);
 
         // Get Components (Projects)
+        console.log(':::: Get Components (Projects) ::::')
+        const filenameForComponents = `${__dirname}/out/components.csv`;
         const listComponents: Component[] = await getComponentList(url, requestOptions)
             .then(comps => {
                 comps = comps.filter(item => item.key.startsWith('gd-'));
-                //console.log('Components------');
                 jsonexport(comps, (err, csv) => {
                     if (err) return console.error(err);
-                    const filename = `${__dirname}/out/components.csv`;
-                    // fs.writeFile(filename, csv, function (err) {
-                    //     if (err) return console.error(err);
-                    //     console.log(filename + ' saved');
-                    // });
-                    fs.writeFileSync(filename, csv);                    
-                    console.log(filename + ' saved');
+                    fs.writeFileSync(filenameForComponents, csv);                    
+                    //console.log(filenameComponents + ' saved');
                 });
 
                 return comps;
             });
+        console.log(':::: DONE Components (Projects) ::::')
 
         // Get Measures
         console.log(':::: Get Measures ::::')
+        const filenameForMeasures = `${__dirname}/out/measures.csv`;
         const allPromisesForMeasures: Promise<Measure[]>[] = [];
         listComponents.map(comp => {
             const prom = getComponentMeasures(url, requestOptions, comp.key)
@@ -50,12 +49,8 @@ import { Component, Measure, ProjectStatus, ProjectStatusFormatted } from './typ
                     };
                     jsonexport(measures, options, (err, csv) => {
                         if (err) return console.error(err);
-                        // const filename = `${__dirname}/out/measures.${comp.key}.csv`;
-                        // fs.writeFileSync(filename, csv);                    
-                        //console.log(filename + ' saved');
-                        const filename = `${__dirname}/out/measures.csv`;
-                        fs.appendFileSync(filename, csv + '\n');                    
-                        console.log(filename + ' updated');
+                        fs.appendFileSync(filenameForMeasures, csv + '\n');                    
+                        //console.log(filenameForMeasures + ' updated');
                     });
                     return measures;
                 });
@@ -67,19 +62,22 @@ import { Component, Measure, ProjectStatus, ProjectStatusFormatted } from './typ
 
 
         // Get ProjectStatuses
-        console.log(':::: Get ProjectStatuses ::::')
+        console.log(':::: Get Statuses + Conditions ::::')
+        const filenameForStatuses = `${__dirname}/out/statuses.csv`;
+        const filenameForConditions = `${__dirname}/out/conditions.csv`;
         const allPromisesForProjectStatuses: Promise<ProjectStatus>[] = [];
         listComponents.map(comp => {
             const prom = getProjectStatus(url, requestOptions, comp.key)
                 .then(projectStatus => {
+
                     // Store status  
                     const projectStatusFlat: ProjectStatusFormatted = {
                         processDate: projectStatus.processDate,
                         componentKey: projectStatus.componentKey,
                         status: projectStatus.status,
                         ignoredConditions: projectStatus.ignoredConditions,
-                        periodMode: projectStatus.period.mode,
-                        periodDate: projectStatus.period.date,
+                        //periodMode: projectStatus.period.mode,
+                        //periodDate: projectStatus.period.date,
                         caycStatus: projectStatus.caycStatus,
                     }
                     const optionsForProjectStatus:jsonexport.UserOptions = { 
@@ -90,12 +88,8 @@ import { Component, Measure, ProjectStatus, ProjectStatusFormatted } from './typ
                     };
                     jsonexport(projectStatusFlat, optionsForProjectStatus, (err, csv) => {
                         if (err) return console.error(err);
-                        // const filename = `${__dirname}/out/statuses.${comp.key}.csv`;
-                        // fs.writeFileSync(filename, csv);                    
-                        // console.log(filename + ' saved');
-                        const filename = `${__dirname}/out/statuses.csv`;
-                        fs.appendFileSync(filename, csv + '\n');                    
-                        console.log(filename + ' updated');
+                        fs.appendFileSync(filenameForStatuses, csv + '\n');                    
+                        //console.log(filenameForStatuses + ' updated');
                     });
 
                     // Store conditions  
@@ -107,9 +101,8 @@ import { Component, Measure, ProjectStatus, ProjectStatusFormatted } from './typ
                     };
                     jsonexport(projectStatus.conditions, optionsForConditions, (err, csv) => {
                         if (err) return console.error(err);
-                        const filename = `${__dirname}/out/conditions.csv`;
-                        fs.appendFileSync(filename, csv + '\n');                    
-                        console.log(filename + ' updated');
+                        fs.appendFileSync(filenameForConditions, csv + '\n');                    
+                        //console.log(filenameForConditions + ' updated');
                     });
                     
                     return projectStatus;
@@ -118,10 +111,18 @@ import { Component, Measure, ProjectStatus, ProjectStatusFormatted } from './typ
         });
 
         await Promise.all(allPromisesForProjectStatuses);        
-        console.log(':::: DONE ProjectStatuses ::::')
+
+        // Remove duplicated headers
+        //removeDuplicatedHeaders(filenameForComponents);
+        //removeDuplicatedHeaders(filenameForMeasures);
+        removeDuplicatedHeaders(filenameForStatuses);
+        //removeDuplicatedHeaders(filenameForConditions);
+
+        console.log(':::: DONE Statuses + Conditions ::::')
 
     } catch (error) {
         console.log('Errors: ', error);
     }
 
 })();
+
