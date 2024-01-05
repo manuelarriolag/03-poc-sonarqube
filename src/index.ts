@@ -3,7 +3,7 @@ import { getComponentList, getComponentMeasures, getProjectStatus } from './requ
 import jsonexport from 'jsonexport';
 import fs from 'fs';
 import { Component, Measure, ProjectStatus, ProjectStatusFormatted } from './types';
-import { removeDuplicatedHeaders } from './utils';
+import { cleanContent } from './utils';
 
 (async () => {
 
@@ -112,11 +112,11 @@ import { removeDuplicatedHeaders } from './utils';
 
         await Promise.all(allPromisesForProjectStatuses);        
 
-        // Remove duplicated headers
-        //removeDuplicatedHeaders(filenameForComponents);
-        //removeDuplicatedHeaders(filenameForMeasures);
-        removeDuplicatedHeaders(filenameForStatuses);
-        //removeDuplicatedHeaders(filenameForConditions);
+        // Remove duplicated headers and empty lines
+        cleanContent(filenameForComponents);
+        cleanContent(filenameForMeasures);
+        cleanContent(filenameForStatuses);
+        cleanContent(filenameForConditions);
 
         console.log(':::: DONE Statuses + Conditions ::::')
 

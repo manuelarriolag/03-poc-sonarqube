@@ -73,3 +73,17 @@ export interface Period {
     mode: string;
     date: string;
 }
+export interface QualityGateDetails {
+    level:             string;
+    conditions:        Condition[];
+    ignoredConditions: boolean;
+}
+
+export interface Condition {
+    metric: string;
+    op:     string;
+    period: number;
+    error:  string;
+    actual: string;
+    level:  string;
+}

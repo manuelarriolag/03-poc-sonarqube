@@ -12,10 +12,11 @@ export async function getComponentMeasures(
     const endpoint = '/api/measures/component';
     const metrics:string[] = [
         'blocker_violations',
+        'critical_violations',
+        'major_violations',
+        'complexity',
         'cognitive_complexity',
         'coverage',
-        'critical_violations',
-        'complexity',
         'sqale_rating',
         'reliability_rating',
         'security_hotspots_reviewed',
@@ -25,6 +26,7 @@ export async function getComponentMeasures(
         'ncloc',
         'quality_gate_details',
         'alert_status',
+        'duplicated_lines_density',
     ];
 
     const queryParams = `component=${componentKey}&metricKeys=${metrics.join(',')}`;
