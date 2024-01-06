@@ -18,5 +18,10 @@
             "database": "sonarqube",
             "username": "postgres"
         }
-    ]
+    ],
+    "workbench.colorCustomizations": {
+        "activityBar.background": "#01342C",
+        "titleBar.activeBackground": "#02493E",
+        "titleBar.activeForeground": "#E9FFFB"
+    }
 }
