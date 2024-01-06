@@ -27,8 +27,5 @@ export function copyContent(outputDir: string, filename: string) {
 }
 
 function replaceOutDirectory(outputDir: string, originalPath: string): fs.PathLike {
-  return originalPath.replace(outputDir, '/Users/marriolag/databases/postgresql-data/data/tmp');
+  return originalPath.replace(outputDir, process.env.POSTGRESQL_DATA as string);
 }
-
-
-
