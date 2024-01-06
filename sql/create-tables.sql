@@ -186,11 +186,5 @@ insert into Scores values
     ('cognitive_complexity', 'D',  21, 999, 'over 20 (very-very difficult to understand)')
 ;
 
--- select * from Scores;
-
--- select 
--- 	    metrickey, score || ' ' || name
---     from scores
-
 
 
