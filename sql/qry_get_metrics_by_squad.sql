@@ -63,26 +63,35 @@ SELECT
 ;
 
 
+SELECT 
+		m.componentkey, m.metric, m.value
+	FROM public.measures as m
+	where (m.metric IN ('security_hotspots_reviewed'));
+
+
 
 ---------------- IDENTIFICAR NIVELES
 
 -- Score por squad/component/score/
 SELECT 
-		s.squad, m.componentkey, sc.score, sc.name, mm.domain, m.metric
+		COALESCE(s.squad, '?'), m.componentkey, sc.score, sc.name, mm.domain, m.metric, CAST(m.value AS DECIMAL)
 	FROM public.measures as m
-	inner join public.squads as s on (s.project = m.componentkey)
-	inner join public.metrics as mm on (m.metric = mm.key)
-	inner join public.scores as sc on (m.metric = sc.metricKey and CAST(m.value AS DECIMAL) BETWEEN sc.minValue and sc.MaxValue)
+	left join public.squads as s on (s.project = m.componentkey)
+	left join public.metrics as mm on (m.metric = mm.key)
+	left join public.scores as sc on (m.metric = sc.metricKey and CAST(m.value AS DECIMAL) BETWEEN sc.minValue and sc.MaxValue)
 	where (m.metric IN (
 		'reliability_rating', 'security_rating', 'security_review_rating', 'sqale_rating',
-		'coverage', 'duplicated_lines_density', 
+		'coverage', 'duplicated_lines_density', 'security_hotspots_reviewed', 
 		'blocker_violations', 'critical_violations', 'major_violations',
 		'complexity', 'cognitive_complexity'
 	))
 	group by 
-		s.squad, m.componentkey, sc.score, sc.name, mm.domain, m.metric
+		s.squad, m.componentkey, sc.score, sc.name, mm.domain, m.metric, m.value
 	--having sc.score in ('C', 'D', 'E') 
+	having sc.score is null
+	--having s.squad is null
 	order by 1, 2, 3 DESC, 4, 5, 6
+	--order BY 6
 ;
 
 

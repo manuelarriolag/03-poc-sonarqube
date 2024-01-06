@@ -1,8 +1,8 @@
 import 'dotenv/config'
-import { getComponentList, getComponentMeasures } from './requests';
+import { getComponentIssues, getComponentList, getComponentMeasures } from './requests';
 import jsonexport from 'jsonexport';
 import fs from 'fs';
-import { Component, Measure } from './types';
+import { Component, Issue, Measure } from './types';
 import { cleanContent, copyContent } from './utils';
 import { UTCDate } from '@date-fns/utc';
 import { formatISO } from 'date-fns';
@@ -63,6 +63,32 @@ import { formatISO } from 'date-fns';
 
         await Promise.all(allPromisesForMeasures);
         console.log(':::: DONE Measures ::::')
+
+        // // Get Issue
+        // console.log(':::: GET Issues ::::')
+        // const filenameForIssue = `${outputDir}/sonarqube.issue.csv`;
+        // const allPromisesForIssue: Promise<Issue[]>[] = [];
+        // listComponents.map(comp => {
+        //     const prom = getComponentIssues(url, requestOptions, comp.key, processDate)
+        //         .then(issue => {
+        //             const options = { 
+        //                 includeHeaders: false,
+        //                 headerPathString: '_',
+        //                 headers: ['processDate', 'componentKey', 'metric', 'value', 'bestValue']
+        //             };
+        //             jsonexport(issue, options, (err, csv) => {
+        //                 if (err) return console.error(err);
+        //                 fs.appendFileSync(filenameForIssue, csv + '\n');                    
+        //                 //console.log(filenameForIssue + ' updated');
+        //             });
+        //             //console.log(issue);
+        //             return issue;
+        //         });
+        //     allPromisesForIssue.push(prom);
+        // });
+
+        // await Promise.all(allPromisesForIssue);
+        // console.log(':::: DONE Issues ::::')
 
         // Remove duplicated headers and empty lines
         cleanContent(filenameForComponents);

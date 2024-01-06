@@ -78,7 +78,7 @@ end; $$
 
 select * from ResultDetails limit 1;
 
-call build_result_level1('2024-01-06 02:12:32.35146+00');
+call build_result_level1('2024-01-06 12:02:06+00');
 
 select * from ResultLevel0;
 select * from ResultLevel1;
