@@ -1,14 +1,17 @@
 import 'dotenv/config'
-import { getComponentList, getComponentMeasures, getProjectStatus } from './requests';
+import { getComponentList, getComponentMeasures } from './requests';
 import jsonexport from 'jsonexport';
 import fs from 'fs';
-import { Component, Measure, ProjectStatus, ProjectStatusFormatted } from './types';
-import { cleanContent } from './utils';
+import { Component, Measure } from './types';
+import { cleanContent, copyContent } from './utils';
+import { UTCDate } from '@date-fns/utc';
+import { formatISO } from 'date-fns';
 
 (async () => {
 
     try {
         const url: string = process.env.URL as string;
+        const processDate:string = formatISO(new UTCDate(new Date()), { format: 'basic' });
 
         const requestOptions: RequestInit = {
             method: 'GET',
@@ -17,11 +20,12 @@ import { cleanContent } from './utils';
             ]
         };
 
-        fs.mkdirSync(`${__dirname}/out`);
+        const outputDir = `${__dirname}/out`;
+        fs.mkdirSync(outputDir);
 
         // Get Components (Projects)
         console.log(':::: GET Components (Projects) ::::')
-        const filenameForComponents = `${__dirname}/out/sonarqube.components.csv`;
+        const filenameForComponents = `${outputDir}/sonarqube.components.csv`;
         const listComponents: Component[] = await getComponentList(url, requestOptions)
             .then(comps => {
                 comps = comps.filter(item => item.key.startsWith('gd-'));
@@ -37,10 +41,10 @@ import { cleanContent } from './utils';
 
         // Get Measures
         console.log(':::: GET Measures ::::')
-        const filenameForMeasures = `${__dirname}/out/sonarqube.measures.csv`;
+        const filenameForMeasures = `${outputDir}/sonarqube.measures.csv`;
         const allPromisesForMeasures: Promise<Measure[]>[] = [];
         listComponents.map(comp => {
-            const prom = getComponentMeasures(url, requestOptions, comp.key)
+            const prom = getComponentMeasures(url, requestOptions, comp.key, processDate)
                 .then(measures => {
                     const options = { 
                         includeHeaders: false,
@@ -60,64 +64,13 @@ import { cleanContent } from './utils';
         await Promise.all(allPromisesForMeasures);
         console.log(':::: DONE Measures ::::')
 
-
-        // // Get ProjectStatuses
-        // console.log(':::: GET Statuses + Conditions ::::')
-        // const filenameForStatuses = `${__dirname}/out/sonarqube.statuses.csv`;
-        // const filenameForConditions = `${__dirname}/out/sonarqube.conditions.csv`;
-        // const allPromisesForProjectStatuses: Promise<ProjectStatus>[] = [];
-        // listComponents.map(comp => {
-        //     const prom = getProjectStatus(url, requestOptions, comp.key)
-        //         .then(projectStatus => {
-
-        //             // Store status  
-        //             const projectStatusFlat: ProjectStatusFormatted = {
-        //                 processDate: projectStatus.processDate,
-        //                 componentKey: projectStatus.componentKey,
-        //                 status: projectStatus.status,
-        //                 ignoredConditions: projectStatus.ignoredConditions,
-        //                 //periodMode: projectStatus.period.mode,
-        //                 //periodDate: projectStatus.period.date,
-        //                 caycStatus: projectStatus.caycStatus,
-        //             }
-        //             const optionsForProjectStatus:jsonexport.UserOptions = { 
-        //                 includeHeaders: false,
-        //                 //headerPathString: '_',
-        //                 verticalOutput: false,
-        //                 headers: ['processDate', 'componentKey', 'status', 'ignoredConditions', 'periodMode', 'periodDate', 'caycStatus']
-        //             };
-        //             jsonexport(projectStatusFlat, optionsForProjectStatus, (err, csv) => {
-        //                 if (err) return console.error(err);
-        //                 fs.appendFileSync(filenameForStatuses, csv + '\n');                    
-        //                 //console.log(filenameForStatuses + ' updated');
-        //             });
-
-        //             // Store conditions  
-        //             const optionsForConditions:jsonexport.UserOptions = { 
-        //                 includeHeaders: false,
-        //                 //headerPathString: '_',
-        //                 verticalOutput: false,
-        //                 headers: ['processDate', 'componentKey', 'status', 'metricKey', 'comparator', 'errorThreshold', 'actualValue']
-        //             };
-        //             jsonexport(projectStatus.conditions, optionsForConditions, (err, csv) => {
-        //                 if (err) return console.error(err);
-        //                 fs.appendFileSync(filenameForConditions, csv + '\n');                    
-        //                 //console.log(filenameForConditions + ' updated');
-        //             });
-                    
-        //             return projectStatus;
-        //         });
-        //         allPromisesForProjectStatuses.push(prom);
-        // });
-
-        // await Promise.all(allPromisesForProjectStatuses);        
-        // console.log(':::: DONE Statuses + Conditions ::::')
-
         // Remove duplicated headers and empty lines
         cleanContent(filenameForComponents);
         cleanContent(filenameForMeasures);
-        // cleanContent(filenameForStatuses);
-        // cleanContent(filenameForConditions);
+
+        // Copy files to postgresql-data directory (created or overwritten by default)
+        copyContent(outputDir, filenameForComponents);
+        copyContent(outputDir, filenameForMeasures);
 
     } catch (error) {
         console.log('Errors: ', error);

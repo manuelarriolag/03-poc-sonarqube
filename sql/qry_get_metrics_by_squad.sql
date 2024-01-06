@@ -1,8 +1,8 @@
 
--- RETORNA las conditions por squad/component
-SELECT s.squad, c.componentkey, c.status, c.metrickey 
-	FROM public.squads as s
-	inner join public.conditions as c on (s.project = c.componentkey);
+-- -- RETORNA las conditions por squad/component
+-- SELECT s.squad, c.componentkey, c.status, c.metrickey 
+-- 	FROM public.squads as s
+-- 	inner join public.conditions as c on (s.project = c.componentkey);
 	
 
 

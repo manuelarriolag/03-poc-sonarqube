@@ -7,5 +7,16 @@
         "qualitygates",
         "sonarqube",
         "sqale"
+    ],
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "localhost",
+            "database": "sonarqube",
+            "username": "postgres"
+        }
     ]
 }

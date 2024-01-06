@@ -1,13 +1,11 @@
 import { 
-    Component, ComponentListResponse, ComponentResponse, Measure, ProjectStatus, ProjectStatusResponse, Qualifier } from "./types";
-import { formatISO } from "date-fns";
-import { UTCDate } from "@date-fns/utc";
-
+    Component, ComponentListResponse, ComponentResponse, Measure, Qualifier } from "./types";
 
 export async function getComponentMeasures(
     url: string,
     requestOptions: RequestInit,
-    componentKey: string
+    componentKey: string,
+    processDate: string
 ): Promise<Measure[]> {
     const endpoint = '/api/measures/component';
     const metrics:string[] = [
@@ -33,11 +31,9 @@ export async function getComponentMeasures(
     return fetch(`${url}${endpoint}?${queryParams}`, requestOptions)
         .then(response => response.json())
         .then(result => {
-            const utcNow = new UTCDate(new Date());
-            const isoStr:string = formatISO(utcNow, { format: 'basic' });
             const response: ComponentResponse = result as ComponentResponse;
             const measures = response.component.measures.map(measure => {
-                measure.processDate = isoStr;
+                measure.processDate = processDate;
                 measure.componentKey = componentKey;
                 measure.bestValue = measure.bestValue ?? false;
                 return measure;
@@ -59,32 +55,3 @@ export async function getComponentList(
             return response.components;
         });
 };
-
-export async function getProjectStatus(
-    url: string,
-    requestOptions: RequestInit,
-    projectKey: string
-): Promise<ProjectStatus> {
-    const endpoint = '/api/qualitygates/project_status';
-    const queryParams = `projectKey=${projectKey}`;
-    const finalUrl = `${url}${endpoint}?${queryParams}`;
-    //console.log('finalUrl', finalUrl);
-    return fetch(finalUrl, requestOptions)
-        .then(response => response.json())
-        .then(result => {
-            //console.log('result', result);
-            const utcNow = new UTCDate(new Date());
-            const isoStr:string = formatISO(utcNow, { format: 'basic' });
-            const response: ProjectStatusResponse = result as ProjectStatusResponse;
-            response.projectStatus.processDate = isoStr;
-            response.projectStatus.componentKey = projectKey;
-            const conditions = response.projectStatus.conditions.map(cond => {
-                cond.processDate = isoStr;
-                cond.componentKey = projectKey;
-                return cond;
-            });
-            response.projectStatus.conditions = conditions;
-            return response.projectStatus;
-        });
-};
-

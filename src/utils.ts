@@ -20,4 +20,15 @@ export async function cleanContent(filename: string) {
   }
 }
 
+export function copyContent(outputDir: string, filename: string) {
+  const newFilename = replaceOutDirectory(outputDir, filename);
+  fs.copyFileSync(filename, newFilename);
+  console.log(newFilename + ' COPIED');
+}
+
+function replaceOutDirectory(outputDir: string, originalPath: string): fs.PathLike {
+  return originalPath.replace(outputDir, '/Users/marriolag/databases/postgresql-data/data/tmp');
+}
+
+
 
