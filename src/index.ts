@@ -20,7 +20,7 @@ import { cleanContent } from './utils';
         fs.mkdirSync(`${__dirname}/out`);
 
         // Get Components (Projects)
-        console.log(':::: Get Components (Projects) ::::')
+        console.log(':::: GET Components (Projects) ::::')
         const filenameForComponents = `${__dirname}/out/sonarqube.components.csv`;
         const listComponents: Component[] = await getComponentList(url, requestOptions)
             .then(comps => {
@@ -36,7 +36,7 @@ import { cleanContent } from './utils';
         console.log(':::: DONE Components (Projects) ::::')
 
         // Get Measures
-        console.log(':::: Get Measures ::::')
+        console.log(':::: GET Measures ::::')
         const filenameForMeasures = `${__dirname}/out/sonarqube.measures.csv`;
         const allPromisesForMeasures: Promise<Measure[]>[] = [];
         listComponents.map(comp => {
@@ -58,67 +58,66 @@ import { cleanContent } from './utils';
         });
 
         await Promise.all(allPromisesForMeasures);
-        console.log(':::: DONE measures ::::')
+        console.log(':::: DONE Measures ::::')
 
 
-        // Get ProjectStatuses
-        console.log(':::: Get Statuses + Conditions ::::')
-        const filenameForStatuses = `${__dirname}/out/sonarqube.statuses.csv`;
-        const filenameForConditions = `${__dirname}/out/sonarqube.conditions.csv`;
-        const allPromisesForProjectStatuses: Promise<ProjectStatus>[] = [];
-        listComponents.map(comp => {
-            const prom = getProjectStatus(url, requestOptions, comp.key)
-                .then(projectStatus => {
+        // // Get ProjectStatuses
+        // console.log(':::: GET Statuses + Conditions ::::')
+        // const filenameForStatuses = `${__dirname}/out/sonarqube.statuses.csv`;
+        // const filenameForConditions = `${__dirname}/out/sonarqube.conditions.csv`;
+        // const allPromisesForProjectStatuses: Promise<ProjectStatus>[] = [];
+        // listComponents.map(comp => {
+        //     const prom = getProjectStatus(url, requestOptions, comp.key)
+        //         .then(projectStatus => {
 
-                    // Store status  
-                    const projectStatusFlat: ProjectStatusFormatted = {
-                        processDate: projectStatus.processDate,
-                        componentKey: projectStatus.componentKey,
-                        status: projectStatus.status,
-                        ignoredConditions: projectStatus.ignoredConditions,
-                        //periodMode: projectStatus.period.mode,
-                        //periodDate: projectStatus.period.date,
-                        caycStatus: projectStatus.caycStatus,
-                    }
-                    const optionsForProjectStatus:jsonexport.UserOptions = { 
-                        includeHeaders: false,
-                        //headerPathString: '_',
-                        verticalOutput: false,
-                        headers: ['processDate', 'componentKey', 'status', 'ignoredConditions', 'periodMode', 'periodDate', 'caycStatus']
-                    };
-                    jsonexport(projectStatusFlat, optionsForProjectStatus, (err, csv) => {
-                        if (err) return console.error(err);
-                        fs.appendFileSync(filenameForStatuses, csv + '\n');                    
-                        //console.log(filenameForStatuses + ' updated');
-                    });
+        //             // Store status  
+        //             const projectStatusFlat: ProjectStatusFormatted = {
+        //                 processDate: projectStatus.processDate,
+        //                 componentKey: projectStatus.componentKey,
+        //                 status: projectStatus.status,
+        //                 ignoredConditions: projectStatus.ignoredConditions,
+        //                 //periodMode: projectStatus.period.mode,
+        //                 //periodDate: projectStatus.period.date,
+        //                 caycStatus: projectStatus.caycStatus,
+        //             }
+        //             const optionsForProjectStatus:jsonexport.UserOptions = { 
+        //                 includeHeaders: false,
+        //                 //headerPathString: '_',
+        //                 verticalOutput: false,
+        //                 headers: ['processDate', 'componentKey', 'status', 'ignoredConditions', 'periodMode', 'periodDate', 'caycStatus']
+        //             };
+        //             jsonexport(projectStatusFlat, optionsForProjectStatus, (err, csv) => {
+        //                 if (err) return console.error(err);
+        //                 fs.appendFileSync(filenameForStatuses, csv + '\n');                    
+        //                 //console.log(filenameForStatuses + ' updated');
+        //             });
 
-                    // Store conditions  
-                    const optionsForConditions:jsonexport.UserOptions = { 
-                        includeHeaders: false,
-                        //headerPathString: '_',
-                        verticalOutput: false,
-                        headers: ['processDate', 'componentKey', 'status', 'metricKey', 'comparator', 'errorThreshold', 'actualValue']
-                    };
-                    jsonexport(projectStatus.conditions, optionsForConditions, (err, csv) => {
-                        if (err) return console.error(err);
-                        fs.appendFileSync(filenameForConditions, csv + '\n');                    
-                        //console.log(filenameForConditions + ' updated');
-                    });
+        //             // Store conditions  
+        //             const optionsForConditions:jsonexport.UserOptions = { 
+        //                 includeHeaders: false,
+        //                 //headerPathString: '_',
+        //                 verticalOutput: false,
+        //                 headers: ['processDate', 'componentKey', 'status', 'metricKey', 'comparator', 'errorThreshold', 'actualValue']
+        //             };
+        //             jsonexport(projectStatus.conditions, optionsForConditions, (err, csv) => {
+        //                 if (err) return console.error(err);
+        //                 fs.appendFileSync(filenameForConditions, csv + '\n');                    
+        //                 //console.log(filenameForConditions + ' updated');
+        //             });
                     
-                    return projectStatus;
-                });
-                allPromisesForProjectStatuses.push(prom);
-        });
+        //             return projectStatus;
+        //         });
+        //         allPromisesForProjectStatuses.push(prom);
+        // });
 
-        await Promise.all(allPromisesForProjectStatuses);        
+        // await Promise.all(allPromisesForProjectStatuses);        
+        // console.log(':::: DONE Statuses + Conditions ::::')
 
         // Remove duplicated headers and empty lines
         cleanContent(filenameForComponents);
         cleanContent(filenameForMeasures);
-        cleanContent(filenameForStatuses);
-        cleanContent(filenameForConditions);
-
-        console.log(':::: DONE Statuses + Conditions ::::')
+        // cleanContent(filenameForStatuses);
+        // cleanContent(filenameForConditions);
 
     } catch (error) {
         console.log('Errors: ', error);
