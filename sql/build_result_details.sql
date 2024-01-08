@@ -39,7 +39,6 @@ begin
 		))
 		group by 
 			s.squad, m.componentkey, sc.score, sc.name, mm.domain, m.metric, m.value
-		--having sc.score in ('C', 'D', 'E') 
 		order by 1, 2, 3, 4 DESC, 5, 6; 
 
 		-- RETORNA el total de lineas por component
@@ -69,7 +68,9 @@ select * from ResultDetails
 
 select * from ResultDetails
 	where metricKey = 'security_hotspots_reviewed'
+;
 
 select * from ComponentSizes
+;
 
 */
