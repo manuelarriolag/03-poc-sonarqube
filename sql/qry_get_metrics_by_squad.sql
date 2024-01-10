@@ -10,10 +10,10 @@ select s.squad, cs.processdate, cs.componentkey, cs.nloc from ComponentSizes as 
 -- RETORNA las metricas de sonarqube
 select * from metrics;
 
--- -- RETORNA metrics y sus scores
--- select 
--- 	    metrickey, score || ' ' || name
---     from scores;
+-- RETORNA metrics y sus scores
+select 
+	    metrickey, score || ' ' || name
+    from scores;
 
 -- -- RETORNA las measures por squad/component
 -- SELECT m.processdate, s.squad, m.componentkey, mm.domain, m.metric, m.value, m.bestvalue
@@ -86,12 +86,11 @@ SELECT
 		left join public.squads as s on (s.project = m.componentkey)
 		left join public.metrics as mm on (m.metric = mm.key)
 		left join public.scores as sc on (m.metric = sc.metricKey and CAST(m.value AS DECIMAL) BETWEEN sc.minValue and sc.MaxValue)
-		where (m.processDate = '2024-01-09 22:16:13+00')
+		where (m.processDate = '2024-01-10 23:32:14+00')
 		and (m.metric IN (
 			'reliability_rating', 'security_rating', 'security_review_rating', 'sqale_rating',
 			'coverage', 'duplicated_lines_density', 'security_hotspots_reviewed', 
 			'blocker_violations', 'critical_violations', 'major_violations'
-			--'complexity', 'cognitive_complexity'
 		))
 		group by 
 			s.squad, m.componentkey, sc.score, sc.name, mm.domain, m.metric, m.value
@@ -100,3 +99,24 @@ SELECT
 
 ;
 
+-- Score por squad/artifact/score/
+SELECT 
+		COALESCE(s.squad, '?'), m.artifactkey, sc.score, sc.name, mm.domain, m.metric, CAST(m.value AS DECIMAL)
+		FROM public.artifactmeasures as m
+		left join public.squads as s on (s.project = m.componentkey)
+		left join public.metrics as mm on (m.metric = mm.key)
+		left join public.scores as sc on (m.metric = sc.metricKey and CAST(m.value AS DECIMAL) BETWEEN sc.minValue and sc.MaxValue)
+		where (m.processDate = '2024-01-10 23:32:14+00')
+		and m.qualifier = 'FIL'
+		and (m.metric IN (
+			'complexity', 'cognitive_complexity'
+		))
+		group by 
+			s.squad, m.artifactkey, sc.score, sc.name, mm.domain, m.metric, m.value
+		having 
+			(sc.score is null)
+			or
+			(sc.score in ('B', 'C', 'D', 'E'))
+		order by 1, 2, 3, 4 DESC, 5, 6; 
+
+;
