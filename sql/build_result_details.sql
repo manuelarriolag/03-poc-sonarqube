@@ -34,8 +34,8 @@ begin
 		and (m.metric IN (
 			'reliability_rating', 'security_rating', 'security_review_rating', 'sqale_rating',
 			'coverage', 'duplicated_lines_density', 'security_hotspots_reviewed', 
-			'blocker_violations', 'critical_violations', 'major_violations',
-			'complexity', 'cognitive_complexity'
+			'blocker_violations', 'critical_violations', 'major_violations'
+			--'complexity', 'cognitive_complexity'
 		))
 		group by 
 			s.squad, m.componentkey, sc.score, sc.name, mm.domain, m.metric, m.value
@@ -61,7 +61,7 @@ select distinct processDate
 	order by 1 DESC
 	limit 3 
 
-call build_result_details('2024-01-06 12:02:06+00');
+call build_result_details('2024-01-10 23:32:14+00');
 
 select * from ResultDetails
 	where score is null;

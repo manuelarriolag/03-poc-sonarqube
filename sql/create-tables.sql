@@ -48,6 +48,17 @@ create table measures (
     bestValue boolean
 ); 
 
+drop table if exists artifactMeasures;
+create table artifactMeasures (
+    processDate timestamptz,
+    componentKey VARCHAR(100),
+    artifactKey VARCHAR(500),
+    qualifier VARCHAR(10),
+    metric VARCHAR(100),
+    value VARCHAR(1000),
+    bestValue boolean
+); 
+
 -- drop table if exists issues;
 -- create table issues (
 --     processDate timestamptz,
@@ -79,22 +90,4 @@ create table measures (
 -- ); 
 
 
-
---STORAGE_DIR = "/var/lib/pgadmin/storage"
-
--- copy public.measures (metric, value, componentkey, bestvalue) 
--- FROM STDIN DELIMITER ',' CSV HEADER ENCODING 'UTF8' QUOTE '"' ESCAPE ''''
-
--- truncate components;
-
--- COPY components FROM '/bitnami/postgresql/data/tmp/sonarqube.components.csv' CSV HEADER
-
--- truncate measures;
-
--- COPY measures FROM '/bitnami/postgresql/data/tmp/sonarqube.measures.csv' CSV
-
-
-
--- select * from measures
--- where metric = 'quality_gate_details'
 

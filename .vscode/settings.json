@@ -5,6 +5,7 @@
         "jsonexport",
         "ncloc",
         "qualitygates",
+        "respuesta",
         "sonarqube",
         "sqale"
     ],

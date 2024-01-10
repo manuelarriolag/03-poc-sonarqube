@@ -3,7 +3,7 @@ import {
     Component, ComponentListResponse, ComponentResponse, ComponentTreeResponse, Issue, IssueResponse, Measure, Qualifier
 } from "./types";
 
-const metrics: string[] = [
+const componentMetrics: string[] = [
     'blocker_violations',
     'critical_violations',
     'major_violations',
@@ -13,7 +13,6 @@ const metrics: string[] = [
     'sqale_rating',
     'reliability_rating',
     'security_hotspots_reviewed',
-    //'security_review_rating',
     'security_rating',
     'comment_lines_density',
     'lines',
@@ -23,52 +22,109 @@ const metrics: string[] = [
     'duplicated_lines_density',
 ];
 
+const artifactMetrics: string[] = [
+    'blocker_violations',
+    'critical_violations',
+    'major_violations',
+    'complexity',
+    'cognitive_complexity',
+    'coverage',
+    'comment_lines_density',
+    'lines',
+    'ncloc',
+    'duplicated_lines_density',
+];
 
-export async function getArtifactMeasures(
+export async function getMeasuresByArtifact(
     url: string,
     requestOptions: RequestInit,
     componentKey: string,
     processDate: string
-): Promise<Artifact[]> {
+): Promise<Measure[]> {
     const endpoint = '/api/measures/component_tree';
-    const queryParams = `component=${componentKey}&metricKeys=${metrics.join(',')}`;
-    return fetch(`${url}${endpoint}?${queryParams}`, requestOptions)
-        .then(response => response.json())
+    const queryParams = `component=${componentKey}&metricKeys=${artifactMetrics.join(',')}`;
+    const fullUrl = `${url}${endpoint}?${queryParams}`;
+    return fetch(fullUrl, requestOptions)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Response status (${response.status}) was not ok`);
+            }
+            return response.json();
+        })
         .then(result => {
-            const response: ComponentTreeResponse = result as ComponentTreeResponse;
-            const artifacts = response.components.map(artifact => {
-                const measures = artifact.measures.map(measure => {
-                    measure.processDate = processDate;
-                    measure.componentKey = componentKey;
-                    measure.bestValue = measure.bestValue ?? false;
-                    return measure;
+            try {
+                const response: ComponentTreeResponse = result as ComponentTreeResponse;
+                if (!response.components) {
+                    console.log('WARN', `No hay Components en la respuesta de "${componentKey}"`);
+                    console.log('fullUrl', fullUrl);
+                    return [];
+                }
+                const allMeasures: Measure[] = [];
+                response.components.map(artifact => {
+                    if (!artifact.measures) {
+                        console.log('WARN', `No hay Measures en la respuesta de "${componentKey}", Artifact: "${artifact.key}"`);
+                        console.log('fullUrl', fullUrl);
+                    } else {
+                        artifact.measures.map(measure => {
+                            measure.processDate = processDate;
+                            measure.componentKey = componentKey;
+                            measure.artifactKey = artifact.key;
+                            measure.qualifier = artifact.qualifier;
+                            measure.bestValue = measure.bestValue ?? false;
+                            allMeasures.push(measure);
+                        });
+                    }
                 });
-                artifact.measures = measures;
-                return artifact;
-            });
-            return artifacts;
+                return allMeasures;
+            } catch (error) {
+                console.log('ERROR en el try', error);
+                console.log('result: ', result);
+                return [];
+            }
+        })
+        .catch((error) => {
+            console.log('ERROR en el catch', error);
+            return [];
         });
 };
 
-export async function getComponentMeasures(
+export async function getMeasuresByComponent(
     url: string,
     requestOptions: RequestInit,
     componentKey: string,
     processDate: string
 ): Promise<Measure[]> {
     const endpoint = '/api/measures/component';
-    const queryParams = `component=${componentKey}&metricKeys=${metrics.join(',')}`;
+    const queryParams = `component=${componentKey}&metricKeys=${componentMetrics.join(',')}`;
     return fetch(`${url}${endpoint}?${queryParams}`, requestOptions)
         .then(response => response.json())
         .then(result => {
-            const response: ComponentResponse = result as ComponentResponse;
-            const measures = response.component.measures.map(measure => {
-                measure.processDate = processDate;
-                measure.componentKey = componentKey;
-                measure.bestValue = measure.bestValue ?? false;
-                return measure;
-            });
-            return measures;
+            try {
+                const response: ComponentResponse = result as ComponentResponse;
+                if (!response.component) {
+                    console.log('WARN', `No hay Component en la respuesta de "${componentKey}"`);
+                    return [];
+                }
+                if (!response.component.measures) {
+                    console.log('WARN', `No hay Measures en la respuesta de "${componentKey}"`);
+                    return [];
+                }
+                const measures = response.component.measures.map(measure => {
+                    measure.processDate = processDate;
+                    measure.componentKey = componentKey;
+                    measure.bestValue = measure.bestValue ?? false;
+                    return measure;
+                });
+                return measures;
+            } catch (error) {
+                console.log('ERROR en el try', error);
+                console.log('result: ', result);
+                return [];
+            }
+        })
+        .catch((error) => {
+            console.log('ERROR en el catch', error);
+            return [];
         });
 };
 

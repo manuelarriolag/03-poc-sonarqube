@@ -13,6 +13,8 @@ export interface Component {
 export interface Measure {
     processDate: string;
     componentKey: string;
+    artifactKey: string;
+    qualifier: Qualifier;
     metric:    string;
     value:     string;
     bestValue: boolean;

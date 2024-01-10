@@ -79,7 +79,7 @@ insert into Scores values
 
 --Cyclomatic complexity
 insert into Scores values
---    ('complexity', 'A+', 0,  10, 'greater than 10 (can be considered simple and testable)'),
+    ('complexity', 'A+', 0,  10, 'greater than 10 (can be considered very simple and testable)'),
     ('complexity', 'A',  0, 12, 'greater than 12 (can be considered simple and testable)'),
     ('complexity', 'B',  13, 15, 'greater than 15 (median complexity and hard to test)'),
     ('complexity', 'C',  16, 20, 'greater than 20 (high complexity and untestable)'),
@@ -88,7 +88,7 @@ insert into Scores values
 
 --Cognitive complexity	
 insert into Scores values
---    ('cognitive_complexity', 'A+', 0,  13, 'greater than 13 (very easy to understand)'),
+    ('cognitive_complexity', 'A+', 0,  13, 'greater than 13 (very easy to understand)'),
     ('cognitive_complexity', 'A',  0, 15, 'greater than 15 (easy to understand)'),
     ('cognitive_complexity', 'B',  16, 17, 'greater than 17 (difficult to understand)'),
     ('cognitive_complexity', 'C',  18, 20, 'greater than 20 (very difficult to understand)'),
